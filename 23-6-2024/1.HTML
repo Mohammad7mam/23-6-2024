@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AJAX Request with JavaScript</title>
+    <style>
+      #displayComment {
+        display: inline;
+        font-size: medium;
+        font-weight: 100;
+      }
+      .commentBox {
+        border: 1px solid #000;
+        padding: 10px;
+        margin-top: 10px;
+        width: 300px;
+        background-color: #f9f9f9;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>AJAX Request with JavaScript</h1>
+    <input
+      type="text"
+      id="comment"
+      placeholder="JavaScript"
+      oninput="updateComment()"
+    />
+    <button onclick="sendComment()">Send comment</button>
+    <h2>
+      Get comment:
+      <p id="displayComment"></p>
+    </h2>
+
+    <div id="commentsContainer"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        loadComments();
+      });
+
+      function updateComment() {
+        const comment = document.getElementById("comment").value;
+        document.getElementById("displayComment").innerText = comment;
+      }
+
+      function sendComment() {
+        const comment = document.getElementById("comment").value;
+        if (comment.trim() !== "") {
+          saveCommentToLocalStorage(comment);
+          saveCommentToServer(comment);
+          document.getElementById("comment").value = "";
+          updateComment();
+        } else {
+          alert("Please enter a comment.");
+        }
+      }
+
+      function saveCommentToLocalStorage(comment) {
+        let comments = localStorage.getItem("comments");
+        comments = comments ? JSON.parse(comments) : [];
+        comments.push(comment);
+        localStorage.setItem("comments", JSON.stringify(comments));
+
+        const commentBox = document.createElement("div");
+        commentBox.className = "commentBox";
+        commentBox.innerText = comment;
+        document.getElementById("commentsContainer").appendChild(commentBox);
+      }
+
+      function saveCommentToServer(comment) {
+        fetch("https://your-server-endpoint.com/comments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ comment: comment }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      function loadComments() {
+        let comments = localStorage.getItem("comments");
+        comments = comments ? JSON.parse(comments) : [];
+
+        comments.forEach(function (comment) {
+          const commentBox = document.createElement("div");
+          commentBox.className = "commentBox";
+          commentBox.innerText = comment;
+
+          document.getElementById("commentsContainer").appendChild(commentBox);
+        });
+      }
+    </script>
+  </body>
+</html>
